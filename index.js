@@ -18,6 +18,7 @@ const basket = require('./js/basket.js');
 const item = require('./js/item.js');
 const order = require('./js/order.js');
 const capture = require('./js/capture.js');
+const utils = require('./js/utils.js');
 
 // Set up express app
 const app = express();
@@ -59,7 +60,10 @@ const client = new MongoClient(uri);
 client.db("admin").command({ ping: 1 });
 
 // Routes
-app.route('/*/').get((req, res) => { res.send("SHOP API") });
+app.route('/*/').get((req, res) => {
+    utils.log_query('/', req);
+    res.send("SHOP API")
+});
 app.route('/*/connect').get((req, res) => {
     const cookie = req.signedCookies.ync_shop;
     if (!cookie) {
