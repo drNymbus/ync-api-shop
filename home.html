@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Store API Documentation</title>
+</head>
+<body>
+
+<h1>Store API Documentation</h1>
+
+<ul>
+  <li>
+    <strong>GET <code>/store/connect</code></strong>: In case a cookie is passed then the session is updated then user's shopping cart is retrieved. If no cookie were provided, a new session and basket is created then the new basket is sent.
+    <pre>
+    {
+        "items": [string, ]
+    }
+    </pre>
+  </li>
+
+  <li>
+    <strong>GET <code>/store/basket</code></strong>: Retrieves the user's shopping cart.
+    <pre>
+    {
+        "items": [string, ]
+    }
+    </pre>
+  </li>
+
+  <li>
+    <strong>GET <code>/store/item?id=&lt;item_id#1&gt;[, &lt;item_id#2&gt;, ...]</code></strong>: Retrieves all attributes from item_id, all item ids should be separated by a comma. If no attribute exists, the list of all item ids available in the shop is sent.
+    <pre>
+    {
+        "item_id": string,
+        "image": string,
+        "display_name": string,
+        "description": string,
+        "price": decimal
+    }
+    </pre>
+
+    <p>In case no id is provided, you'll get the lost of item ids to be queried from this route</p>
+    <pre>
+    [
+        {
+            "item_id": &lt;item_id#1&gt;,
+        }, {
+            "item_id": &lt;item_id#2&gt;,
+        }, ...
+    ]
+    </pre>
+  </li>
+
+  <li>
+    <strong>GET <code>/store/order</code></strong>: Retrieves the user's previous commands. If no commands are found an empty json object is returned.
+    <pre>
+    {
+        "command_id": string,
+        "item_count": integer,
+        "items": [string, ],
+        "address": string,
+        "postal_code": string,
+        "country": string,
+        "name": string,
+        "first_name": string,
+        "mail": string,
+        "phone": string,
+        "processed": bool
+    }
+    </pre>
+  </li>
+
+  <li>
+    <strong>POST <code>/store/basket</code></strong>: Updates the user's cart then retrieve the updated basket. Request's body:
+    <pre>
+    {
+        "items": {item_id: int, }
+    }
+    </pre>
+    Response's body:
+    <pre>
+    {
+        "items": {item_id: int, }
+    }
+    </pre>
+  </li>
+
+  <li>
+    <strong>POST <code>/store/item</code></strong>: Adds one or several new items to the item table. The response object contains two fields containing item ids: 'completed' for every succesful item insertionl and 'rejected' for every failed item insertion. Request's body:
+    <pre>
+    {
+        "items": {item_id: int, }
+    }
+    </pre>
+    Response's body:
+    <pre>
+    {
+        "completed": [string, ],
+        "rejected": [string, ]
+    }
+    </pre>
+  </li>
+
+  <li>
+    <strong>POST <code>/store/command</code></strong>: Adds a new command to the commands table then returns the status of the query: 200 if successful, 500 otherwise. Only one command can be posted at a time.
+  </li>
+
+  <li>
+    <strong>DELETE <code>/store/item?id=&lt;item_id&gt;</code></strong>: Removes an item from the table then returns the status of the query: 200 if successful, 500 otherwise.
+  </li>
+
+  <li>
+    <strong>DELETE <code>/store/order?id=&lt;item_id&gt;</code></strong>: Removes a command from the table then returns the status of the query: 200 if successful, 500 otherwise.
+  </li>
+</ul>
+
+<p>In case a request cannot be completed or fails the response will update the status accordingly to the error type and contain an error message under a json format:</p>
+<pre>
+{
+    "error": "Error description"
+}
+</pre>
+
+</body>
+</html>

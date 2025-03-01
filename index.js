@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 
 // Request parsers
 const { queryParser } = require('express-query-parser');
@@ -60,11 +61,12 @@ const client = new MongoClient(uri);
 client.db("admin").command({ ping: 1 });
 
 // Routes
-app.route('/*/').get((req, res) => {
-    utils.log_query('/', req);
-    res.send("SHOP API")
+const root = '/api/shop';
+app.route(root).get((req, res) => {
+    res.sendFile(path.join(__dirname, 'home.html'))
 });
-app.route('/*/connect').get((req, res) => {
+
+app.route(root + '/connect').get((req, res) => {
     const cookie = req.signedCookies.ync_shop;
     if (!cookie) {
         session.createSession(req, res, client);
@@ -73,21 +75,21 @@ app.route('/*/connect').get((req, res) => {
     }
 });
 
-app.route('/*/basket')
+app.route(root + '/basket')
     .get((req, res) => basket.get(req, res, client))
     .post((req, res) => basket.post(req, res, client));
 
-app.route('/*/item')
+app.route(root + '/item')
     .get((req, res) => { item.get(req, res, client); })
     .post((req, res) => { item.post(req, res, client); })
     .delete((req, res) => { item.remove(req, res, client); });
 
-app.route('/*/order')
+app.route(root + '/order')
     .get((req, res) => order.get(req, res, client))
     .post((req, res) => order.post(req, res, client))
     .delete((req, res) => order.remove(req, res, client));
 
-app.route('/*/capture')
+app.route(root + '/capture')
     .get((req, res) => capture.get(req, res, client))
     .post((req, res) => capture.post(req, res, client));
 
