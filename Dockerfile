@@ -3,6 +3,7 @@ FROM node:16
 WORKDIR /usr/src/app
 
 # Install app dependencies
+COPY home.html ./
 COPY package*.json ./
 RUN npm install
 
