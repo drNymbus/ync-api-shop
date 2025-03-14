@@ -1,124 +1,204 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Store API Documentation</title>
-</head>
-<body>
+	<head>
+		<title>API Documentation</title>
+		<style>
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+				font-size: 16px;
+				line-height: 1.6;
+				color: #24292e;
+				background-color: #ffffff;
+				padding: 20px;
+				word-wrap: break-word;
+				margin: 0 auto; /* Center the body */
+				max-width: 800px; /* Limit the width */
+			}
 
-<h1>Store API Documentation</h1>
+			h1, h2, h3, h4, h5, h6 {
+				font-weight: 600;
+				line-height: 1.25;
+				margin-bottom: 16px;
+				margin-top: 24px;
+			}
 
-<ul>
-  <li>
-    <strong>GET <code>/store/connect</code></strong>: In case a cookie is passed then the session is updated then user's shopping cart is retrieved. If no cookie were provided, a new session and basket is created then the new basket is sent.
-    <pre>
-    {
-        "items": [string, ]
-    }
-    </pre>
-  </li>
+			h1 {
+				font-size: 32px;
+			}
 
-  <li>
-    <strong>GET <code>/store/basket</code></strong>: Retrieves the user's shopping cart.
-    <pre>
-    {
-        "items": [string, ]
-    }
-    </pre>
-  </li>
+			h2 {
+				font-size: 24px;
+			}
 
-  <li>
-    <strong>GET <code>/store/item?id=&lt;item_id#1&gt;[, &lt;item_id#2&gt;, ...]</code></strong>: Retrieves all attributes from item_id, all item ids should be separated by a comma. If no attribute exists, the list of all item ids available in the shop is sent.
-    <pre>
-    {
-        "item_id": string,
-        "image": string,
-        "display_name": string,
-        "description": string,
-        "price": decimal
-    }
-    </pre>
+			h3 {
+				font-size: 20px;
+			}
 
-    <p>In case no id is provided, you'll get the lost of item ids to be queried from this route</p>
-    <pre>
-    [
-        {
-            "item_id": &lt;item_id#1&gt;,
-        }, {
-            "item_id": &lt;item_id#2&gt;,
-        }, ...
-    ]
-    </pre>
-  </li>
+			h4 {
+				font-size: 16px;
+			}
 
-  <li>
-    <strong>GET <code>/store/order</code></strong>: Retrieves the user's previous commands. If no commands are found an empty json object is returned.
-    <pre>
-    {
-        "command_id": string,
-        "item_count": integer,
-        "items": [string, ],
-        "address": string,
-        "postal_code": string,
-        "country": string,
-        "name": string,
-        "first_name": string,
-        "mail": string,
-        "phone": string,
-        "processed": bool
-    }
-    </pre>
-  </li>
+			h5 {
+				font-size: 14px;
+			}
 
-  <li>
-    <strong>POST <code>/store/basket</code></strong>: Updates the user's cart then retrieve the updated basket. Request's body:
-    <pre>
-    {
-        "items": {item_id: int, }
-    }
-    </pre>
-    Response's body:
-    <pre>
-    {
-        "items": {item_id: int, }
-    }
-    </pre>
-  </li>
+			h6 {
+				font-size: 12px;
+			}
 
-  <li>
-    <strong>POST <code>/store/item</code></strong>: Adds one or several new items to the item table. The response object contains two fields containing item ids: 'completed' for every succesful item insertionl and 'rejected' for every failed item insertion. Request's body:
-    <pre>
-    {
-        "items": {item_id: int, }
-    }
-    </pre>
-    Response's body:
-    <pre>
-    {
-        "completed": [string, ],
-        "rejected": [string, ]
-    }
-    </pre>
-  </li>
+			p {
+				margin-bottom: 16px;
+			}
 
-  <li>
-    <strong>POST <code>/store/command</code></strong>: Adds a new command to the commands table then returns the status of the query: 200 if successful, 500 otherwise. Only one command can be posted at a time.
-  </li>
+			ul {
+				padding-left: 30px;
+				margin-bottom: 16px;
+			}
 
-  <li>
-    <strong>DELETE <code>/store/item?id=&lt;item_id&gt;</code></strong>: Removes an item from the table then returns the status of the query: 200 if successful, 500 otherwise.
-  </li>
+			li {
+				margin-bottom: 8px;
+			}
 
-  <li>
-    <strong>DELETE <code>/store/order?id=&lt;item_id&gt;</code></strong>: Removes a command from the table then returns the status of the query: 200 if successful, 500 otherwise.
-  </li>
-</ul>
+			pre {
+				background-color: #f6f8fa;
+				padding: 16px;
+				overflow: auto;
+				line-height: 1.45;
+				border-radius: 3px;
+				margin-bottom: 16px;
+			}
 
-<p>In case a request cannot be completed or fails the response will update the status accordingly to the error type and contain an error message under a json format:</p>
-<pre>
+			code {
+				font-family: monospace;
+				font-size: 14px;
+				background-color: #f6f8fa;
+				padding: 2px 4px;
+				border-radius: 3px;
+			}
+
+			strong {
+				font-weight: 600;
+			}
+
+			/* Responsive adjustments for phones */
+			@media (max-width: 600px) {
+				body {
+				padding: 10px; /* Reduce padding on small screens */
+				max-width: 100%; /* Allow full width on small screens */
+				}
+
+				ul {
+				padding-left: 20px; /* Adjust list indentation */
+				}
+			}
+		</style>
+	</head>
+	<body>
+
+		<h1>API Documentation</h1>
+
+		<ul>
+		<li>
+			<strong>GET <code>/connect</code></strong>: In case a cookie is passed then the session is updated then user's shopping cart is retrieved. If no cookie were provided, a new session and basket is created then the new basket is sent.
+			<pre>
 {
-    "error": "Error description"
-}
-</pre>
+	"items": [string, ]
+}</pre>
+		</li>
 
-</body>
+		<li>
+			<strong>GET <code>/basket</code></strong>: Retrieves the user's shopping cart.
+			<pre>
+{
+	"items": [string, ]
+}</pre>
+		</li>
+
+		<li>
+			<strong>POST <code>/basket</code></strong>: Updates the user's cart then retrieve the updated basket. Request's body:
+			<pre>
+{
+	"items": {item_id: int, }
+}</pre>
+			Response's body:
+			<pre>
+{
+	"items": {item_id: int, }
+}</pre>
+		</li>
+
+		<li>
+			<strong>GET <code>/item?id=&lt;item_id#1&gt;[, &lt;item_id#2&gt;, ...]</code></strong>: Retrieves all attributes from item_id, all item ids should be separated by a comma. If no attribute exists, the list of all item ids available in the shop is sent.
+			<pre>
+{
+	"item_id": string,
+	"image": string,
+	"display_name": string,
+	"description": string,
+	"price": decimal
+}</pre>
+
+			<p>In case no id is provided, you'll get the lost of item ids to be queried from this route</p>
+			<pre>
+[
+	{
+		"item_id": &lt;item_id#1&gt;,
+	}, {
+		"item_id": &lt;item_id#2&gt;,
+	}, ...
+]</pre>
+		</li>
+
+		<li>
+			<strong>POST <code>/item</code></strong>: Adds one or several new items to the item table. The response object contains two fields containing item ids: 'completed' for every succesful item insertionl and 'rejected' for every failed item insertion. Request's body:
+			<pre>
+{
+	"items": {item_id: int, }
+}</pre>
+			Response's body:
+			<pre>
+{
+	"completed": [string, ],
+	"rejected": [string, ]
+}</pre>
+		</li>
+
+		<li>
+			<strong>DELETE <code>/item?id=&lt;item_id&gt;</code></strong>: Removes an item from the table then returns the status of the query: 200 if successful, 500 otherwise.
+		</li>
+
+		<li>
+			<strong>GET <code>/order</code></strong>: Retrieves the user's previous orders. If no orders are found an empty json object is returned.
+			<pre>
+{
+	"command_id": string,
+	"item_count": integer,
+	"items": [string, ],
+	"address": string,
+	"postal_code": string,
+	"country": string,
+	"name": string,
+	"first_name": string,
+	"mail": string,
+	"phone": string,
+	"processed": bool
+}</pre>
+		</li>
+
+		<li>
+			<strong>POST <code>/order</code></strong>: Adds a new order to the orders table then returns the status of the query: 200 if successful, 500 otherwise. Only one order can be posted at a time.
+		</li>
+
+		<li>
+			<strong>DELETE <code>/order?id=&lt;item_id&gt;</code></strong>: Removes an order from the table then returns the status of the query: 200 if successful, 500 otherwise.
+		</li>
+		</ul>
+
+		<p>In case a request cannot be completed or fails the response will update the status accordingly to the error type and contain an error message under a json format:</p>
+		<pre>
+{
+	"error": "Error description"
+}</pre>
+
+	</body>
 </html>
