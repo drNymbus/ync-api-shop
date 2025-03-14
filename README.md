@@ -1,8 +1,8 @@
 # YNC Node API
 
-This application uses Express and CassandraDB to manage a simple shopping cart system. Not only the user's cart can be managed from this API, but also items present in the shop and commands passed by users.
+This application program interface uses Express to manage a simple shopping cart system, get items present in the shop and manage user's orders. Orders are paid via Paypal only, data is retrieved and inserted into an actual database (in this case MongoDB, you can see in earlier commits Cassandra driver too) for the API to work properly. Each action requires the user to be authenticated via a signed cookie. The system generates and updates these cookies as needed (through the 'connect' route under the method GET) to track user's session and cart information.
 
-Each action requires the user to be authenticated via a signed HTTP cookie. The system generates and updates these cookies as needed (through the 'connect' route under the method GET) to track session and cart information securely. For a smoother user's experience across all browsers we should use HTTPS, by creating a certificate then validate it (see Let's encrypt for a free certficate validation). This also implies the API to regularly check if the certificate is still valid and generate/re-evaluating in case it is revoked.
+This API is part of a larger project called [YNC](https://yn-corp.xyz/home) and can be seen in action [here](https://yn-corp.xyz/api/shop)
 
 ## Exposed Routes and Methods
 
