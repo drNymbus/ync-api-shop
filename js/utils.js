@@ -50,9 +50,6 @@ const generate_cookie = () => {
 const assert_cookie = async (client, cookie) => {
     let asserted = undefined;
 
-    // client.execute(session.select, [cookie]).then((result) => {
-    //     if (result.rows.length === 1) asserted = false;
-    // });
     try {
         let sess = client.db('store').collection('session');
         let result = await sess.findOne({token: cookie});

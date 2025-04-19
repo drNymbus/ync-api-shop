@@ -139,7 +139,7 @@
 	"price": decimal
 }</pre>
 
-			<p>In case no id is provided, you'll get the lost of item ids to be queried from this route</p>
+			<p>In case no id is provided, you'll get the list of item ids to be queried from this route</p>
 			<pre>
 [
 	{
@@ -148,24 +148,6 @@
 		"item_id": &lt;item_id#2&gt;,
 	}, ...
 ]</pre>
-		</li>
-
-		<li>
-			<strong>POST <code>/item</code></strong>: Adds one or several new items to the item table. The response object contains two fields containing item ids: 'completed' for every succesful item insertionl and 'rejected' for every failed item insertion. Request's body:
-			<pre>
-{
-	"items": {item_id: int, }
-}</pre>
-			Response's body:
-			<pre>
-{
-	"completed": [string, ],
-	"rejected": [string, ]
-}</pre>
-		</li>
-
-		<li>
-			<strong>DELETE <code>/item?id=&lt;item_id&gt;</code></strong>: Removes an item from the table then returns the status of the query: 200 if successful, 500 otherwise.
 		</li>
 
 		<li>

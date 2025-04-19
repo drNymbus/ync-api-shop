@@ -5,7 +5,6 @@ const createSession = async (req, res, client) => {
     // No existing session: generate and sign a new cookie
     let cookie = utils.generate_cookie();
 
-    // await client.execute(utils.session.insert, [cookie, Date.now()]);
     let sess = client.db('store').collection('session');
     await sess.insertOne({
         token: cookie,
@@ -31,19 +30,12 @@ const retrieveSession = async (req, res, client) => {
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
     // Update session
-    // await client.execute(utils.session.update, [Date.now(), cookie]);
     let sess = client.db('store').collection('session');
     await sess.updateOne({token: cookie}, {
         $set: {last_update:Date.now()}
     });
 
     // Retrieve basket associated with session
-    // client.execute(utils.basket.select, [cookie])
-    //     .then((result) => res.status(200).json(result.rows[0]))
-    //     .catch((error) => {
-    //         console.error('session.retrieveSession', error);
-    //         res.status(500).json({'error': 'Internal server error'});
-    //     });
     let basket = client.db('store').collection('basket');
     let count = await basket.countDocuments({token: cookie});
     if (count === 1) {

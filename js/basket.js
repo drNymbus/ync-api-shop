@@ -7,12 +7,6 @@ const get = async (req, res, client) => {
     let assertion = await utils.assert_cookie(client, cookie);
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
-    // client.execute(utils.basket.select, [cookie])
-    //     .then((result) => res.status(200).json(result.rows[0]))
-    //     .catch((error) => {
-    //         console.error('basket.get', error);
-    //         res.status(500).json({'error': 'Internal server error'})
-    //     });
     let basket = client.db('store').collection('basket');
     let count = await basket.countDocuments({token: cookie});
     if (count === 1) {
@@ -31,19 +25,6 @@ const post = async (req, res, client) => {
     let assertion = await utils.assert_cookie(client, cookie);
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
-    // let method = utils.basket.insert;
-    // await client.execute(utils.basket.select, [cookie]).then((result) => {
-    //     if (result.rows.length > 0) {
-    //         if (result.rows[0].items === null) method = utils.basket.set;
-    //     }
-    // });
-    // await client.execute(method, [req.body.items, cookie], {prepare: true});
-    // client.execute(utils.basket.select, [cookie])
-    //     .then((result) => res.status(200).json(result.rows[0]))
-    //     .catch((error) => {
-    //         console.error('basket.post', error);
-    //         res.status(500).json({'error': 'Internal server error'});
-    //     });
     try {
         let basket = client.db('store').collection('basket');
         await basket.updateOne({token: cookie}, {

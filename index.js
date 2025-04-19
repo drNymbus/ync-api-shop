@@ -57,11 +57,13 @@ const contact  = process.env.MONGO_CONTACT_POINT || 'localhost:27017';
 const uri = `${driver}://${username}:${password}@${contact}/store`;
 console.log(uri);
 const client = new MongoClient(uri);
+
 // Send a ping to confirm a successful connection
 client.db("admin").command({ ping: 1 });
 
 // Routes
 const root = '/api/shop';
+
 app.route(root).get((req, res) => {
     res.sendFile(path.join(__dirname, 'home.html'))
 });
@@ -81,8 +83,8 @@ app.route(root + '/basket')
 
 app.route(root + '/item')
     .get((req, res) => { item.get(req, res, client); })
-    .post((req, res) => { item.post(req, res, client); })
-    .delete((req, res) => { item.remove(req, res, client); });
+    // .post((req, res) => { item.post(req, res, client); })
+    // .delete((req, res) => { item.remove(req, res, client); });
 
 app.route(root + '/order')
     .get((req, res) => order.get(req, res, client))
