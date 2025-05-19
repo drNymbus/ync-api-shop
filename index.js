@@ -19,6 +19,7 @@ const basket = require('./js/basket.js');
 const item = require('./js/item.js');
 const order = require('./js/order.js');
 const capture = require('./js/capture.js');
+const mailing = require('./js/mailing.js');
 const utils = require('./js/utils.js');
 
 // Set up express app
@@ -94,6 +95,10 @@ app.route(root + '/order')
 app.route(root + '/capture')
     .get((req, res) => capture.get(req, res, client))
     .post((req, res) => capture.post(req, res, client));
+
+app.route(root + '/mailing')
+    .post((req, res) => mailing.post(req, res, client))
+    .delete((req, res) => mailing.remove(req, res, client));
 
 // Start the server
 app.listen(port, () => { console.log(`(Express-app) Server is running on port ${port}`)})

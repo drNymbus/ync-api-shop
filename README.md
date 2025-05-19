@@ -1,4 +1,4 @@
-# YNC Node API
+# ync-api-shop
 
 This application program interface uses Express to manage a simple shopping cart system, get items present in the shop and manage user's orders. Orders are paid via Paypal only, data is retrieved and inserted into an actual database (in this case MongoDB, you can see in earlier commits Cassandra driver too) for the API to work properly. Each action requires the user to be authenticated via a signed cookie. The system generates and updates these cookies as needed (through the 'connect' route under the method GET) to track user's session and cart information.
 
@@ -86,6 +86,10 @@ Root's route is `/api/shop`.
 - **POST `/order`**: Adds a new order to the orders table then returns the status of the query: 200 if successful, 500 otherwise. Only one order can be posted at a time.
 
 - **DELETE `/order?id=<item_id>`**: Removes an order from the table then returns the status of the query: 200 if successful, 500 otherwise.
+
+- **POST `/mailing`**: Add user info to the mailing table then returns the status of the query: 200 if successful, 500 otherwise, Only one mailing info can be posted at a time.
+
+- **DELETE `/mailing?mail=<address>`**: Remove a user info from the mailing table then returns the status of the query: 200 if successful, 500 otherwise.
 
 In case a request cannot be completed or fails the response will update the status accordingly to the error type and contain an error message under a json format:
 

@@ -175,6 +175,14 @@
 		<li>
 			<strong>DELETE <code>/order?id=&lt;item_id&gt;</code></strong>: Removes an order from the table then returns the status of the query: 200 if successful, 500 otherwise.
 		</li>
+
+		<li>
+			<strong>POST <code>/mailing</code></strong>: Add user info to the mailing table then returns the status of the query: 200 if successful, 500 otherwise, Only one mailing info can be posted at a time.
+		</li>
+
+		<li>
+			<strong>DELETE <code>/mailing?mail=&lt;address&gt;</code></strong>: Remove a user info from the mailing table then returns the status of the query: 200 if successful, 500 otherwise.
+		</li>
 		</ul>
 
 		<p>In case a request cannot be completed or fails the response will update the status accordingly to the error type and contain an error message under a json format:</p>
