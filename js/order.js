@@ -26,8 +26,8 @@ const post = async (req, res, client) => {
     let assertion = await utils.assert_cookie(client, cookie);
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
-    if req.body.order.gtc !== undefined { delete req.body.order.gtc; }
-    if req.body.order.newsletter !== undefined { delete req.body.order.newsletter; }
+    if (req.body.order.gtc !== undefined) { delete req.body.order.gtc; }
+    if (req.body.order.newsletter !== undefined) { delete req.body.order.newsletter; }
 
     // Compute order price
     let price = 0;

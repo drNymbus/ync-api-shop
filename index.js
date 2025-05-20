@@ -83,9 +83,7 @@ app.route(root + '/basket')
     .post((req, res) => basket.post(req, res, client));
 
 app.route(root + '/item')
-    .get((req, res) => { item.get(req, res, client); })
-    // .post((req, res) => { item.post(req, res, client); })
-    // .delete((req, res) => { item.remove(req, res, client); });
+    .get((req, res) => { item.get(req, res, client); });
 
 app.route(root + '/order')
     .get((req, res) => order.get(req, res, client))
