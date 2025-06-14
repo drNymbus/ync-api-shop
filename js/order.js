@@ -34,7 +34,7 @@ const post = async (req, res, client) => {
     for (const id in req.body.order.items) {
         for (const size in req.body.order.items[id]) {
             const quantity = req.body.order.items[id][size];
-            const item = client.db('store').collection('items').find({id: item_id})[0];
+            const item = client.db('store').collection('items').find({id: id})[0];
             price += item.price * quantity;
         }
     }
