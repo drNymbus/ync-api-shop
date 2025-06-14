@@ -39,6 +39,7 @@ const post = async (req, res, client) => {
         }
     }
     req.body.order.price = price;
+    console.log(req.body.order);
 
     const {status, data} = await paypal.postOrder(req.body.order.price);
 
