@@ -32,16 +32,15 @@ const post = async (req, res, client) => {
     // Compute order price
     let price = 0;
     for (const id in req.body.order.items) {
+        const item = client.db('store').collection('items').find({id: id}).toArray()[0];
         for (const size in req.body.order.items[id]) {
             const quantity = req.body.order.items[id][size];
-            const item = client.db('store').collection('items').find({id: id})[0];
             price += item.price * quantity;
         }
     }
     req.body.order.price = price;
 
     const {status, data} = await paypal.postOrder(req.body.order.price);
-    console.log(status, data);
 
     let order = {...req.body.order, cookie: req.signedCookies.ync_shop, id: uuid.random()};
     let uorder = client.db('store').collection('order');
