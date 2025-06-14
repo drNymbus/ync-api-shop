@@ -17,6 +17,7 @@ const { MongoClient } = require('mongodb');
 const session = require('./js/session.js');
 const basket = require('./js/basket.js');
 const item = require('./js/item.js');
+const quantity = require('./js/quantity.js');
 const order = require('./js/order.js');
 const capture = require('./js/capture.js');
 const mailing = require('./js/mailing.js');
@@ -84,6 +85,9 @@ app.route(root + '/basket')
 
 app.route(root + '/item')
     .get((req, res) => { item.get(req, res, client); });
+
+app.route(root + '/quantity')
+    .get((req, res) => { quantity.get(req, res, client); });
 
 app.route(root + '/order')
     .get((req, res) => order.get(req, res, client))
