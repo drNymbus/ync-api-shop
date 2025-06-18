@@ -58,9 +58,71 @@ const assert_cookie = async (client, cookie) => {
         asserted = false;
     }
 
-    console.log("ASSERTION: ", asserted, cookie);
+    console.log("[Cookie] ASSERTION: ", asserted, cookie);
     return asserted;
 }; exports.assert_cookie = assert_cookie;
+
+const assert_order = async (client, order) => {
+    let asserted = true;
+
+    try {
+        const items = await client.db('store').collection('quantity')
+            .find({id: {$in:Object.keys(order.items)}}).toArray();
+        let quantities = {};
+        for (const row of items) { quantities[row.id] = row.sizes; }
+
+        for (const item in order.items) {
+            for (const size in order.items[item]) {
+                const qtty_asked = order.items[item][size];
+                const qtty_store = quantities[item][size];
+                if (qtty_asked > qtty_store) { asserted = false; }
+            }
+        }
+    } catch (err) {
+        asserted = false;
+        console.error(`assert_order: ${err}`);
+    }
+
+    console.log("[Order] ASSERTION: ", asserted, order);
+    return asserted;
+}; exports.assert_order = assert_order;
+
+const add_quantity = async (client, item, size, qtty) => {
+    const quantities = client.db('store').collection('quantity');
+    let db_qtty = await quantities.findOne({id: {$eq: item}});
+    db_qtty.sizes[size] -= qtty;
+    quantities.updateOne({id: item}, {$set: db_qtty})
+        .catch(e => console.error(`[remove_quantity;updateOne] ${e}`));
+}; exports.add_quantity = add_quantity;
+
+const remove_quantity = async (client, item, size, qtty) => {
+    const quantities = client.db('store').collection('quantity');
+    let db_qtty = await quantities.findOne({id: {$eq: item}});
+    db_qtty.sizes[size] -= qtty;
+    quantities.updateOne({id: item}, {$set: db_qtty})
+        .catch(e => console.error(`[remove_quantity;updateOne] ${e}`));
+}
+
+const compute_price_order = async (client, order) => {
+    // Gather every item price, updating quantity at the same time;
+    const items = await client.db('store').collection('item')
+        .find({id: {$in:Object.keys(order.items)}},{projection: {id:true, price:true}}).toArray();
+    let prices = {};
+    for (const row of items) { prices[row.id] = row.price; }
+
+    // Compute order price
+    const fee = 0.01;
+    let price = 0;
+    for (const id in order.items) {
+        for (const size in order.items[id]) {
+            const quantity = order.items[id][size];
+            price += (prices[id] + fee) * quantity ;
+            remove_quantity(client, id, size, quantity); // function just above;
+        }
+    }
+
+    return price;
+}; exports.compute_price_order = compute_price_order;
 
 /* @desc: Send a bad request error message to the client with the appropriate status code.
  * @param {Object} response: The response object handled by express.

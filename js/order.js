@@ -1,4 +1,3 @@
-const uuid = require('cassandra-driver').types.Uuid;
 const utils = require('./utils.js');
 const paypal = require('./paypal.js');
 
@@ -9,9 +8,8 @@ const get = async (req, res, client) => {
     let assertion = await utils.assert_cookie(client, cookie);
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
-    // Send permanent cookie associated if different from actual
     let uorder = client.db('store').collection('order');
-    uorder.find({token: cookie, id: req.query.id})
+    uorder.findOne({token: cookie, id: req.query.id}).toArray()
         .then((result) => res.status(200).json(result))
         .catch((error) => {
             console.log('order.get', error);
@@ -29,28 +27,30 @@ const post = async (req, res, client) => {
     if (req.body.order.gtc !== undefined) { delete req.body.order.gtc; }
     if (req.body.order.newsletter !== undefined) { delete req.body.order.newsletter; }
 
-    // Compute order price
-    let price = 0;
-    for (const id in req.body.order.items) {
-        const item = client.db('store').collection('items').find({id: id}).toArray()[0];
-        for (const size in req.body.order.items[id]) {
-            const quantity = req.body.order.items[id][size];
-            price += item.price * quantity;
-        }
+    assertion = await utils.assert_order(client, req.body.order);
+    if (!assertion) {
+        utils.failed_request(res, 200, {'error': 'Not enough in store for order'});
+    } else {
+        req.body.order.price = await utils.compute_price_order(client, req.body.order);
+
+        const {status, data} = await paypal.postOrder(req.body.order.price);
+
+        let order = {
+            ...req.body.order,
+            cookie: req.signedCookies.ync_shop,
+            id: utils.generate_cookie(),
+            completed: false,
+            paid: false
+        };
+
+        let uorder = client.db('store').collection('order');
+        uorder.insertOne(order)
+            .then(() => res.status(status).json({...data, uuid: order.id}))
+            .catch((error) => {
+                console.error('order.post', error);
+                res.status(500).json({'error': 'Internal server error'});
+            });
     }
-    req.body.order.price = price;
-    console.log(req.body.order);
-
-    const {status, data} = await paypal.postOrder(req.body.order.price);
-
-    let order = {...req.body.order, cookie: req.signedCookies.ync_shop, id: uuid.random()};
-    let uorder = client.db('store').collection('order');
-    uorder.insertOne(order)
-        .then(() => res.status(status).json({...data, uuid: order.id}))
-        .catch((error) => {
-            console.error('order.post', error);
-            res.status(500).json({'error': 'Internal server error'});
-        });
 }; exports.post = post;
 
 const remove = async (req, res, client) => {

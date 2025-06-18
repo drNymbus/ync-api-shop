@@ -20,12 +20,14 @@ const post = async (req, res, client) => {
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
     const {status, data} = await paypal.postCapture(req.body.order.id);
+    console.log(status, data);
 
-    let order = client.db('store').collection('user_order');
-    let query = {token: cookie, id: req.body.order.uuid};
-    await order.updateOne(query, { $set: {paid: true} });
+    const order = client.db('store').collection('order');
 
-    order.findOne(query).then((result) => { utils.send_mail(result); });
+    const filter = {cookie: cookie, id: req.body.order.uuid};
+    console.log('capture post', filter);
+    await order.updateOne(filter, {$set: {paid: true}});
+    order.findOne(filter).then((result) => { utils.send_mail(result); });
 
     res.status(status).json(data);
 }; exports.post = post;

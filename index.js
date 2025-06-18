@@ -61,7 +61,7 @@ console.log(uri);
 const client = new MongoClient(uri);
 
 // Send a ping to confirm a successful connection
-client.db("admin").command({ ping: 1 });
+client.db("store").command({ ping: 1 });
 
 // Routes
 const root = '/api/shop';
