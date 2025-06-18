@@ -39,6 +39,7 @@ const post = async (req, res, client) => {
             ...req.body.order,
             cookie: req.signedCookies.ync_shop,
             id: utils.generate_cookie(),
+            paypal_order: data.id,
             completed: false,
             paid: false
         };

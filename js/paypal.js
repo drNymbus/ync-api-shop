@@ -52,3 +52,13 @@ const postCapture = async (order) => {
     const data = (res.status === 200 || res.status === 201) ? await res.json() : res.body;
     return {status: res.status, data: data};
 }; exports.postCapture = postCapture;
+
+const getPayment = async (id) => {
+    const accessToken = await auth();
+    const res = await fetch(`${PAYPAL_ENDPOINT}/v2/payments/captures/${id}`, {
+        method: "GET", headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` }
+    });
+
+    const data = (res.status === 200) ? await res.json() : res.body;
+    return {status: res.status, data: data};
+}; exports.getPayment = getPayment;
