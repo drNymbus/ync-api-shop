@@ -62,46 +62,66 @@ const assert_cookie = async (client, cookie) => {
     return asserted;
 }; exports.assert_cookie = assert_cookie;
 
-const assert_order = async (client, order) => {
+const assert_basket = async (client, basket) => {
     let asserted = true;
 
     try {
         const items = await client.db('store').collection('quantity')
-            .find({id: {$in:Object.keys(order.items)}}).toArray();
+            .find({id: {$in:Object.keys(basket.items)}}).toArray();
         let quantities = {};
         for (const row of items) { quantities[row.id] = row.sizes; }
 
-        for (const item in order.items) {
-            for (const size in order.items[item]) {
-                const qtty_asked = order.items[item][size];
+        for (const item in basket.items) {
+            for (const size in basket.items[item]) {
+                const qtty_asked = basket.items[item][size];
                 const qtty_store = quantities[item][size];
                 if (qtty_asked > qtty_store) { asserted = false; }
             }
         }
     } catch (err) {
         asserted = false;
-        console.error(`assert_order: ${err}`);
+        console.error(`assert_basket: ${err}`);
     }
 
-    console.log("[Order] ASSERTION: ", asserted, order);
+    console.log("[Basket] ASSERTION: ", asserted, basket);
     return asserted;
-}; exports.assert_order = assert_order;
+}; exports.assert_basket = assert_basket;
 
-const add_quantity = async (client, item, size, qtty) => {
-    const quantities = client.db('store').collection('quantity');
-    let db_qtty = await quantities.findOne({id: {$eq: item}});
-    db_qtty.sizes[size] -= qtty;
-    quantities.updateOne({id: item}, {$set: db_qtty})
-        .catch(e => console.error(`[remove_quantity;updateOne] ${e}`));
-}; exports.add_quantity = add_quantity;
+const release_basket = async (client, items) => {
+    const quantity = client.db('store').collection('quantity');
 
-const remove_quantity = async (client, item, size, qtty) => {
-    const quantities = client.db('store').collection('quantity');
-    let db_qtty = await quantities.findOne({id: {$eq: item}});
-    db_qtty.sizes[size] -= qtty;
-    quantities.updateOne({id: item}, {$set: db_qtty})
-        .catch(e => console.error(`[remove_quantity;updateOne] ${e}`));
-}
+    for (const id in items) {
+        let db_item = await quantity.findOne({id: {$eq: id}})
+            .catch(e => console.error(`[utils;release_basket] ${e}`));
+
+        for (const size in items[id]) {
+            const db_quantity = db_item.sizes[size];
+            const basket_quantity = items[id][size];
+            db_item.sizes[size] = db_quantity + basket_quantity;
+        }
+
+        quantity.replaceOne({id: item}, db_item)
+            .catch(e => console.error(`[utils;release_basket] ${e}`));
+    }
+}; exports.release_basket = release_basket;
+
+const hold_basket = async (client, items) => {
+    const quantity = client.db('store').collection('quantity');
+
+    for (const id in items) {
+        let db_item = await quantity.findOne({id: {$eq: id}})
+            .catch(e => console.error(`[utils;hold_basket] ${e}`));
+
+        for (const size in items[id]) {
+            const db_quantity = db_item.sizes[size];
+            const basket_quantity = items[id][size];
+            db_item.sizes[size] = db_quantity - basket_quantity;
+        }
+
+        quantity.replaceOne({id: item}, db_item)
+            .catch(e => console.error(`[utils;hold_basket] ${e}`));
+    }
+}; exports.hold_basket = hold_basket;
 
 const compute_price_order = async (client, order) => {
     // Gather every item price, updating quantity at the same time;
@@ -116,8 +136,7 @@ const compute_price_order = async (client, order) => {
     for (const id in order.items) {
         for (const size in order.items[id]) {
             const quantity = order.items[id][size];
-            price += (prices[id] + fee) * quantity ;
-            remove_quantity(client, id, size, quantity); // function just above;
+            price += (prices[id] + fee) * quantity;
         }
     }
 

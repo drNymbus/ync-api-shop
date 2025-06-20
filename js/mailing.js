@@ -4,7 +4,7 @@ const post = async(req, res, client) => {
     utils.log_query('mailing.post', req);
 
     const cookie = req.signedCookies.ync_shop;
-    let assertion = await utils.assert_cookie(client, cookie);
+    const assertion = await utils.assert_cookie(client, cookie);
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
     const mailing = client.db('store').collection('mailing');
@@ -20,7 +20,7 @@ const remove = async(req, res, client) => {
     utils.log_query('mailing.remove', req);
 
     const cookie = req.signedCookies.ync_shop;
-    let assertion = await utils.assert_cookie(client, cookie);
+    const assertion = await utils.assert_cookie(client, cookie);
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
     const mailing = client.db('store').collection('mailing');

@@ -3,16 +3,16 @@ const utils = require('./utils');
 const createSession = async (req, res, client) => {
     utils.log_query('session.get.create', req);
     // No existing session: generate and sign a new cookie
-    let cookie = utils.generate_cookie();
+    const cookie = utils.generate_cookie();
 
-    let sess = client.db('store').collection('session');
+    const sess = client.db('store').collection('session');
     await sess.insertOne({
         token: cookie,
         unperishable: false,
         last_update: Date.now()
     });
 
-    let basket = client.db('store').collection('basket');
+    const basket = client.db('store').collection('basket');
     await basket.insertOne({
         token: cookie,
         items: {}
@@ -25,19 +25,16 @@ const createSession = async (req, res, client) => {
 const retrieveSession = async (req, res, client) => {
     utils.log_query('session.get.retrieve', req);
 
-    let cookie = req.signedCookies.ync_shop;
-    let assertion = await utils.assert_cookie(client, cookie);
-    if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
-
+    const cookie = req.signedCookies.ync_shop;
     // Update session
-    let sess = client.db('store').collection('session');
+    const sess = client.db('store').collection('session');
     await sess.updateOne({token: cookie}, {
         $set: {last_update:Date.now()}
     });
 
     // Retrieve basket associated with session
-    let basket = client.db('store').collection('basket');
-    let count = await basket.countDocuments({token: cookie});
+    const basket = client.db('store').collection('basket');
+    const count = await basket.countDocuments({token: cookie});
     if (count === 1) {
         let result = await basket.findOne({token: cookie});
         res.status(200).json(result);

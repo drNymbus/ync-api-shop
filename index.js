@@ -12,6 +12,7 @@ const cookieParser = require('cookie-parser');
 // Database driver
 // const cassandra = require('cassandra-driver');
 const { MongoClient } = require('mongodb');
+const sanitizer = require('express-mongo-sanitize');
 
 // Route's functions
 const session = require('./js/session.js');
@@ -52,6 +53,7 @@ app.use(cookieParser(cookie_secret));
 //     keyspace: 'store',
 //     credentials: { username: 'shop_api', password: 'shopapi' }
 // });
+app.use(sanitizer());
 const driver = process.env.MONGO_DRIVER || 'mongodb';
 const username = process.env.MONGO_USERNAME || 'shop_api';
 const password = process.env.MONGO_PASSWORD || 'shop_api';
@@ -70,9 +72,11 @@ app.route(root).get((req, res) => {
     res.sendFile(path.join(__dirname, 'home.html'))
 });
 
-app.route(root + '/connect').get((req, res) => {
+app.route(root + '/connect').get(async (req, res) => {
     const cookie = req.signedCookies.ync_shop;
-    if (!cookie) {
+    const assertion = await utils.assert_cookie(client, cookie);
+
+    if (!assertion) {
         session.createSession(req, res, client);
     } else {
         session.retrieveSession(req, res, client, cookie);

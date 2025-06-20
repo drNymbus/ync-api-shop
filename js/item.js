@@ -4,10 +4,10 @@ const get = async (req, res, client) => {
     utils.log_query('item.get', req);
 
     const cookie = req.signedCookies.ync_shop;
-    let assertion = await utils.assert_cookie(client, cookie);
+    const assertion = await utils.assert_cookie(client, cookie);
     if (!assertion) return utils.failed_request(res, 401, {'error': 'Invalid cookie'});
 
-    let item = client.db('store').collection('item');
+    const item = client.db('store').collection('item');
     let result = [];
     if (req.query.id === undefined) { // Retrieve all store items
         result = await item.find({id : {$ne:'dummy'}}).toArray();
